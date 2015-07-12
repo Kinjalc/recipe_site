@@ -1,33 +1,74 @@
 var mongoose = require('mongoose');
 var autopopulate = require('mongoose-autopopulate');
 
-var ingredientSchema = new mongoose.Schema({
+// function getGrams(){
+
+// }
+
+var recipeIngredientSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true
   },
-  basicQuantity: String,
+  // basicQuantity: String,
   protein: {
-    amount: String,
-    dailyValue: String
+    value: Number,
+    unit: String
   },
   carbohydrates: {
-    amount: String,
-    dailyValue: String
+    value: Number,
+    unit: String
   },
   fat: {
-    amount: String,
-    dailyValue: String
+    value: Number,
+    unit: String
   },
-  //These values will be in %
-  iron: String,
-  vitaminC: String,
-  vitaminA: String,
-  calcium: String
+  monoUnsaturatedFat: {
+    value: Number,
+    unit: String
+  },
+  polyUnsaturatedFat: {
+    value: Number,
+    unit: String
+  },
+  saturatedFat: {
+    value: Number,
+    unit: String
+  },
+  cholesterol: {
+    value: Number,
+    unit: String
+  },
+  iron: {
+    value: Number,
+    unit: String
+  },
+  vitaminC: {
+    value: Number,
+    unit: String
+  },
+  vitaminA: {
+    value: Number,
+    unit: String
+  },
+  vitaminB6: {
+    value: Number,
+    unit: String
+  },
+  vitaminB12: {
+    value: Number,
+    unit: String
+  },
 
-})
+});
+// ingredients = ["one", "two", "three"]
+// ing_schema_array = []
+// ingredients.each do |ing|
+//    nutritions = get_nutritions(ing);
+//    ing_schema_array.push(buildintegredientschema(ing, nutitions))
+// end
 
-var Ingredient = mongoose.model('Ingredient', ingredientSchema);
+// recipeSchema.ingredients = ing_schema_array;
 
 var recipeSchema = new mongoose.Schema({
     title: {
@@ -35,14 +76,11 @@ var recipeSchema = new mongoose.Schema({
       required: true
     },
     ingredients: [recipeIngredientSchema],
-    method: {
-      type: String,
-      required: true
-    },
     cookingTime: String,
     servingSize: String,
     source_url: String,
     image_url: String,
+    recipe_id: String,
     dailyProtein: Number, //percentage
     dailyCarbohydrates: Number,
     dailyTotalFat: Number,
@@ -51,13 +89,18 @@ var recipeSchema = new mongoose.Schema({
     totalCalories: Number,
     caloriesFat: Number,
     caloriesProtein: Number,
-    caloriesCarbohydrates: Number
+    caloriesCarbohydrates: Number,
+    totalProtein: Number, //grams
+    totalCarbohydrates: Number,
+    totalFat: Number,
+    totalUnsatFat: Number,
+    totalSatFat: Number
 
   })
   // recipeSchema.plugin(autopopulate);
 
 var Recipe = mongoose.model('Recipe', recipeSchema);
-module.exports()
+module.exports = Recipe;
 ///model recipe request which is returned from api
 // "recipe": {
 //     "publisher": "The Pioneer Woman",

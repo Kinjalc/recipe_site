@@ -743,3 +743,19 @@ the results of returned query are = [{
   },
   "idx": 5
 }]
+
+
+
+//   var ingredientInsert = {
+//     name: ingBody,
+
+
+//   }
+//   Recipe.update({
+//     recipe_name: recipeId
+//   }, {
+//     $push: {
+//       ingredients:
+//     }
+//   })
+// }
