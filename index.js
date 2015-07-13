@@ -19,12 +19,12 @@ var nutritionix = new NutritionixClient({
 
 
 //request to get nutrition information based on ingredients list.
-function getIngredientNutrients(joinedIng, recipeId) {
+function getIngredientNutrients(joinedIng, sourceUrl) {
   // for each ingredient in an array
   for (var i = 0; i < joinedIng.length; i++) {
     var ingBody = joinedIng[i];
     // var ingBody = joinedIng.join("\n");
-    // console.log("joined ingredients sent for query are %j", ingBody)
+    console.log("joined ingredients sent for query are %j", ingBody)
     request({
       method: 'POST',
       headers: {
@@ -53,7 +53,7 @@ function getIngredientNutrients(joinedIng, recipeId) {
         console.log(" ERROR = " + error);
       } else {
         ///response is an object with results as a key and value as nutrition details
-        console.log("nutrition status = " + response.statusCode);
+        //console.log("nutrition status = " + response.statusCode);
         // console.log("nutrition: body = " + response.body);
         var res = response.body;
         res = JSON.parse(res);
@@ -96,58 +96,58 @@ function getIngredientNutrients(joinedIng, recipeId) {
 
 
               //go through each nutrient in the array and look for the nutrients- carbs,lipids,etc
-              for (var i = 0; i < nutrient.length; i++) {
-                if (nutrient[i].name === "Protein") {
-                  proteinValue = nutrient[i].value;
-                  proteinUnit = nutrient[i].unit;
-                  console.log("this is nutrient info for protein: %j%j ", proteinValue, proteinUnit);
-                } else if (nutrient[i].name === "Carbohydrate, by difference") {
-                  carbohydratesValue = nutrient[i].value;
-                  carbohydratesUnit = nutrient[i].unit;
-                  console.log("this is nutrient info for carbs: %j%j ", carbohydratesValue, carbohydratesUnit);
-                } else if (nutrient[i].name === "Total lipid (fat)") {
-                  lipidValue = nutrient[i].value;
-                  lipidUnit = nutrient[i].unit;
-                  console.log("this is nutrient info for lipid: %j%j ", lipidValue, lipidUnit);
-                } else if (nutrient[i].name === "Fatty acids, total polyunsaturated") {
-                  polyUnsatValue = nutrient[i].value;
-                  polyUnsatUnit = nutrient[i].unit;
-                  console.log("this is nutrient info for polyUnsat: %j%j ", polyUnsatValue, polyUnsatUnit);
-                } else if (nutrient[i].name === "Fatty acids, total monounsaturated") {
-                  monoUnsatValue = nutrient[i].value;
-                  monoUnsatUnit = nutrient[i].unit;
-                  console.log("this is nutrient info for monoUnsat: %j%j ", monoUnsatValue, monoUnsatUnit);
-                } else if (nutrient[i].name === "Fatty acids, total monounsaturated") {
-                  satValue = nutrient[i].value;
-                  satUnit = nutrient[i].unit;
-                  console.log("this is nutrient info for satValue: %j%j ", monoUnsatValue, monoUnsatUnit);
-                } else if (nutrient[i].name === "Iron,FE") {
-                  ironValue = nutrient[i].value;
-                  ironUnit = nutrient[i].unit;
-                  console.log("this is nutrient info for iron: %j%j ", monoUnsatValue, monoUnsatUnit);
-                } else if (nutrient[i].name === "Vitamin C, total ascorbic acid") {
-                  vitaminCValue = nutrient[i].value;
-                  vitaminCUnit = nutrient[i].unit;
-                  console.log("this is nutrient info for monoUnsat: %j%j ", vitaminCValue, vitaminCUnit);
-                } else if (nutrient[i].name === "Vitamin B-6") {
-                  vitaminB6Value = nutrient[i].value;
-                  vitaminB6Unit = nutrient[i].unit;
-                  console.log("this is nutrient info for B6: %j%j ", vitaminB6Value, vitaminB6Unit);
-                } else if (nutrient[i].name === "Vitamin B-6") {
-                  vitaminB6Value = nutrient[i].value;
-                  vitaminB6Unit = nutrient[i].unit;
-                  console.log("this is nutrient info for B6: %j%j ", vitaminB6Value, vitaminB6Unit);
-                } else if (nutrient[i].name === "Vitamin B-12") {
-                  vitaminB12Value = nutrient[i].value;
-                  vitaminB12Unit = nutrient[i].unit;
-                  console.log("this is nutrient info for B12: %j%j ", vitaminB12Value, vitaminB12Unit);
-                } else if (nutrient[i].name === "Vitamin A, RAE") {
-                  vitaminAValue = nutrient[i].value;
-                  vitaminAUnit = nutrient[i].unit;
-                  console.log("this is nutrient info for vitA: %j%j ", vitaminAValue, vitaminAUnit);
+              for (var j = 0; j < nutrient.length; j++) {
+                if (nutrient[j].name === "Protein") {
+                  proteinValue = nutrient[j].value;
+                  proteinUnit = nutrient[j].unit;
+                  //console.log("this is nutrient info for protein: %j%j ", proteinValue, proteinUnit);
+                } else if (nutrient[j].name === "Carbohydrate, by difference") {
+                  carbohydratesValue = nutrient[j].value;
+                  carbohydratesUnit = nutrient[j].unit;
+                  //console.log("this is nutrient info for carbs: %j%j ", carbohydratesValue, carbohydratesUnit);
+                } else if (nutrient[j].name === "Total lipid (fat)") {
+                  lipidValue = nutrient[j].value;
+                  lipidUnit = nutrient[j].unit;
+                  //console.log("this is nutrient info for lipid: %j%j ", lipidValue, lipidUnit);
+                } else if (nutrient[j].name === "Fatty acids, total polyunsaturated") {
+                  polyUnsatValue = nutrient[j].value;
+                  polyUnsatUnit = nutrient[j].unit;
+                  //console.log("this is nutrient info for polyUnsat: %j%j ", polyUnsatValue, polyUnsatUnit);
+                } else if (nutrient[j].name === "Fatty acids, total monounsaturated") {
+                  monoUnsatValue = nutrient[j].value;
+                  monoUnsatUnit = nutrient[j].unit;
+                  //console.log("this is nutrient info for monoUnsat: %j%j ", monoUnsatValue, monoUnsatUnit);
+                } else if (nutrient[j].name === "Fatty acids, total monounsaturated") {
+                  satValue = nutrient[j].value;
+                  satUnit = nutrient[j].unit;
+                  //console.log("this is nutrient info for satValue: %j%j ", monoUnsatValue, monoUnsatUnit);
+                } else if (nutrient[j].name === "Iron,FE") {
+                  ironValue = nutrient[j].value;
+                  ironUnit = nutrient[j].unit;
+                  //console.log("this is nutrient info for iron: %j%j ", monoUnsatValue, monoUnsatUnit);
+                } else if (nutrient[j].name === "Vitamin C, total ascorbic acid") {
+                  vitaminCValue = nutrient[j].value;
+                  vitaminCUnit = nutrient[j].unit;
+                  //console.log("this is nutrient info for monoUnsat: %j%j ", vitaminCValue, vitaminCUnit);
+                } else if (nutrient[j].name === "Vitamin B-6") {
+                  vitaminB6Value = nutrient[j].value;
+                  vitaminB6Unit = nutrient[j].unit;
+                  //console.log("this is nutrient info for B6: %j%j ", vitaminB6Value, vitaminB6Unit);
+                } else if (nutrient[j].name === "Vitamin B-6") {
+                  vitaminB6Value = nutrient[j].value;
+                  vitaminB6Unit = nutrient[j].unit;
+                  //console.log("this is nutrient info for B6: %j%j ", vitaminB6Value, vitaminB6Unit);
+                } else if (nutrient[j].name === "Vitamin B-12") {
+                  vitaminB12Value = nutrient[j].value;
+                  vitaminB12Unit = nutrient[j].unit;
+                  //console.log("this is nutrient info for B12: %j%j ", vitaminB12Value, vitaminB12Unit);
+                } else if (nutrient[j].name === "Vitamin A, RAE") {
+                  vitaminAValue = nutrient[j].value;
+                  vitaminAUnit = nutrient[j].unit;
+                  //console.log("this is nutrient info for vitA: %j%j ", vitaminAValue, vitaminAUnit);
                 }
               }
-
+              //console.log("Ingredient is %j", ingBody);
               var ingredientsInsert = {
                   name: ingBody,
                   protein: {
@@ -205,7 +205,7 @@ function getIngredientNutrients(joinedIng, recipeId) {
 
               //   }
               Recipe.update({
-                recipe_name: recipeId
+                source_url: sourceUrl
               }, {
                 $push: {
                   ingredients: ingredientsInsert
@@ -241,19 +241,18 @@ function processRemoteRecipe(error, response, body) {
     if (recipePublisher === "All Recipes") {
       console.log("processRemoteRecipes: publisher recipes =  " + recipeIngredients);
       console.log("processRemoteRecipes: publisher recipes =  " + recipePublisher);
-      var recipe_id = recipe.recipe_id;
+      var source_url = recipe.source_url;
       var rec = Recipe.create({
         title: recipe.title,
         // ingredients: recipe.ingredients,
         source_url: recipe.source_url,
         image_url: recipe.image_url,
-        recipe_id: recipe_id,
-        method: "Whatever"
+        recipe_id: recipe.recipe_id
       });
       console.log("create recipe: %j", rec);
 
       // calls getIngredientNutrients to make a http request to get nutrition details
-      getIngredientNutrients(recipeIngredients, recipe_id);
+      getIngredientNutrients(recipeIngredients, source_url);
 
     }
   }
@@ -319,6 +318,3 @@ var server = app.listen(3000, function() {
   var port = server.address().port;
   console.log('Example app listening at http://%s:%s', host, port);
 });
-
-
-// ef82898c8dec1bd923cf8abcec885398
