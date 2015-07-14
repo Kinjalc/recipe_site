@@ -75,14 +75,14 @@ var recipeSchema = new mongoose.Schema({
     image_url: String,
     recipe_id: String,
     totalCalories: Number,
-    caloriesFat: Number,
-    caloriesProtein: Number,
-    caloriesCarbohydrates: Number,
-    totalProtein: Number, //grams
-    totalCarbohydrates: Number,
-    totalFat: Number,
-    totalUnsatFat: Number,
-    totalSatFat: Number,
+    // caloriesFat: Number,
+    // caloriesProtein: Number,
+    // caloriesCarbohydrates: Number,
+    percentProtein: Number, //grams
+    percentCarbohydrates: Number,
+    percentFat: Number,
+  // totalUnsatFat: Number,
+  // totalSatFat: Number,
   // monoUnsaturatedFat:
   // polyUnsaturatedFat: Number
   // saturatedFat: Number

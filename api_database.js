@@ -18,57 +18,74 @@ var nutritionix = new NutritionixClient({
   appKey: '4088d6a1aca0376052356e4872c24b68'
 
 });
-// var calculateValues = function() {
-//   Recipe.find({
-//     calculated: false
-//   }, function(err, recipes) {
-//     if (recipes) {
-//       console.log("1 " + recipes);
-//       recipes.forEach(function(recipe) {
-//         console.log("2 " + recipe);
+var calculateValues = function() {
+  Recipe.find({
+    calculated: false
+  }, function(err, recipes) {
+    if (recipes) {
+      console.log("1 " + recipes);
+      recipes.forEach(function(recipe) {
+        console.log("2 " + recipe);
 
 
-//         var recipeFindId = recipe.id
-//         var ingredientsArray = recipe.ingredients;
-//         if (ingredientsArray.length !== 0) {
-//           console.log("4 " + ingredientsArray);
-//           var proteinVal = 0;
-//           var carbVal = 0;
-//           var fatVal = 0;
-//           ingredientsArray.forEach(function(ingredient) {
-//             proteinVal += ingredient.protein.value;
-//             console.log(proteinVal);
-//             carbVal += ingredient.carbohydrates.value;
-//             console.log(carbVal);
-//             fatVal += ingredient.fat.value;
-//             console.log(fatVal);
+        var recipeFindId = recipe.id
+        var ingredientsArray = recipe.ingredients;
+        if (ingredientsArray.length !== 0) {
+          console.log("4 " + ingredientsArray);
+          var proteinVal = 0;
+          var carbVal = 0;
+          var fatVal = 0;
+          ingredientsArray.forEach(function(ingredient) {
+            proteinVal += ingredient.protein.value;
+            console.log(proteinVal);
+            carbVal += ingredient.carbohydrates.value;
+            console.log(carbVal);
+            fatVal += ingredient.fat.value;
+            console.log(fatVal);
 
-//           });
-//           var totalCal = (4*proteinVal) + (4*carbVal)+(9*fatVal);
-//           Recipe.update({
-//             _id: recipeFindId
-//           }, {
-//             $set: {
-//               totalProtein: proteinVal,
+          });
+          var totalCal = (4 * proteinVal) + (4 * carbVal) + (9 * fatVal);
+          console.log("5, calories: " + totalCal);
+
+          proteinVal = (((proteinVal * 4) / totalCal)) * 100;
+          console.log(proteinVal);
 
 
-//             }
-//           }, {
-//             upsert: true
-//           }, function(err, ingredients) {
-//             if (err) {
-//               console.error(err);
-//             } else {
-//               console.log("ingredient updated!");
-//             }
-//           });
-//         }
+          carbVal = (((carbVal * 4) / totalCal)) * 100;
 
-//       })
-//     }
+          console.log("6:" + carbVal);
 
-//   })
-// }
+          fatVal = (((fatVal * 4) / totalCal)) * 100;
+          console.log(fatVal);
+
+          Recipe.update({
+            _id: recipeFindId
+          }, {
+            $set: {
+              totalCalories: totalCal,
+              percentProtein: proteinVal,
+              percentCarbohydrates: carbVal,
+              percentFat: fatVal,
+              calculated: true
+
+            }
+          }, {
+            upsert: true,
+            multi: true
+          }, function(err, ingredients) {
+            if (err) {
+              console.error(err);
+            } else {
+              console.log("ingredient updated!");
+            }
+          });
+        }
+
+      })
+    }
+
+  })
+}
 
 // var calculateValues = function() {
 //   Recipe.find({
@@ -336,6 +353,7 @@ function processRemoteRecipe(error, response, body) {
       if (reject) {
         console.log("rejected");
       } else if (resolve) {
+        calculateValues();
         console.log("resolved")
       }
     })
@@ -373,7 +391,7 @@ function handleListRecipes(error, response, body) {
     //make a request to get each recipe detail
     // recipes.forEach(getRemoteRecipe);
     //for trial calling remoterecipes only for one recipe
-    getRemoteRecipe(recipes[4]);
+    getRemoteRecipe(recipes[5]);
     console.log("handleListRecipes:")
   }
 };
@@ -398,8 +416,8 @@ function listRecipes() {
 
 app.get('/me', function(req, res) {
   //invokes listRecipes
-  // listRecipes();
-  calculateValues();
+  listRecipes();
+  // calculateValues();
 });
 
 
