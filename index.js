@@ -53,14 +53,14 @@ function getIngredientNutrients(joinedIng, sourceUrl) {
         console.log(" ERROR = " + error);
       } else {
         ///response is an object with results as a key and value as nutrition details
-        //console.log("nutrition status = " + response.statusCode);
+        console.log("nutrition status = " + response.statusCode);
         // console.log("nutrition: body = " + response.body);
         var res = response.body;
         res = JSON.parse(res);
         var result = res.results;
         //if ingredient format is not correct
         if (response.statusCode === 400) {
-
+          console.log("Bad request code " + response.statusCode);
 
         } else if (response.statusCode === 200) {
           result.forEach(function(ingredient) {
@@ -147,7 +147,7 @@ function getIngredientNutrients(joinedIng, sourceUrl) {
                   //console.log("this is nutrient info for vitA: %j%j ", vitaminAValue, vitaminAUnit);
                 }
               }
-              //console.log("Ingredient is %j", ingBody);
+              console.log("Ingredient is %j", ingBody);
               var ingredientsInsert = {
                   name: ingBody,
                   protein: {

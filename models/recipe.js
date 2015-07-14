@@ -61,14 +61,7 @@ var recipeIngredientSchema = new mongoose.Schema({
   },
 
 });
-// ingredients = ["one", "two", "three"]
-// ing_schema_array = []
-// ingredients.each do |ing|
-//    nutritions = get_nutritions(ing);
-//    ing_schema_array.push(buildintegredientschema(ing, nutitions))
-// end
 
-// recipeSchema.ingredients = ing_schema_array;
 
 var recipeSchema = new mongoose.Schema({
     title: {
@@ -81,11 +74,6 @@ var recipeSchema = new mongoose.Schema({
     source_url: String,
     image_url: String,
     recipe_id: String,
-    dailyProtein: Number, //percentage
-    dailyCarbohydrates: Number,
-    dailyTotalFat: Number,
-    dailySatFat: Number,
-    dailyUnsatFat: Number,
     totalCalories: Number,
     caloriesFat: Number,
     caloriesProtein: Number,
@@ -94,7 +82,21 @@ var recipeSchema = new mongoose.Schema({
     totalCarbohydrates: Number,
     totalFat: Number,
     totalUnsatFat: Number,
-    totalSatFat: Number
+    totalSatFat: Number,
+  // monoUnsaturatedFat:
+  // polyUnsaturatedFat: Number
+  // saturatedFat: Number
+  // cholesterol: Number
+  // iron: Number
+  // vitaminC: Number
+  // vitaminA: Number
+  // vitaminB6: Number
+  // vitaminB12: Number
+    calculated: {
+      type: Boolean,
+      required: true,
+      default: false
+    }
 
   })
   // recipeSchema.plugin(autopopulate);
