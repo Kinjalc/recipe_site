@@ -19,82 +19,79 @@ var nutritionix = new NutritionixClient({
 
 });
 var calculateValues = function() {
-  Recipe.find({
-    calculated: false
-  }, function(err, recipes) {
-    if (recipes) {
-      console.log("1 " + recipes);
-      recipes.forEach(function(recipe) {
-        console.log("2 " + recipe);
+    Recipe.find({}, function(err, recipes) {
+      if (recipes) {
+        // console.log("1 " + recipes);
+        recipes.forEach(function(recipe) {
+          var recipeFindId = recipe.id
+          var ingredientsArray = recipe.ingredients;
+          if (ingredientsArray.length !== 0) {
+            // console.log("4 " + ingredientsArray);
+            var proteinVal = 0;
+            var carbVal = 0;
+            var fatVal = 0;
+            ingredientsArray.forEach(function(ingredient) {
+              // console.log(ingredient.protein.value);
+              if (ingredient.protein.value && ingredient.carbohydrates.value && ingredient.fat.value) {
+
+                proteinVal += ingredient.protein.value;
+                carbVal += ingredient.carbohydrates.value;
+                fatVal += ingredient.fat.value;
+              }
+
+              // console.log(fatVal);
+            });
+            // console.log('cals: ' + proteinVal);
+            // console.log('cals: ' + carbVal);
+            // console.log('cals: ' + fatVal);
+            var totalCal = (4 * proteinVal) + (4 * carbVal) + (9 * fatVal);
+
+            var totalProtPerc = (((proteinVal * 4) / totalCal)) * 100;
 
 
-        var recipeFindId = recipe.id
-        var ingredientsArray = recipe.ingredients;
-        if (ingredientsArray.length !== 0) {
-          console.log("4 " + ingredientsArray);
-          var proteinVal = 0;
-          var carbVal = 0;
-          var fatVal = 0;
-          ingredientsArray.forEach(function(ingredient) {
-            proteinVal += ingredient.protein.value;
-            console.log(proteinVal);
-            carbVal += ingredient.carbohydrates.value;
-            console.log(carbVal);
-            fatVal += ingredient.fat.value;
-            console.log(fatVal);
-
-          });
-          var totalCal = (4 * proteinVal) + (4 * carbVal) + (9 * fatVal);
-          console.log("5, calories: " + totalCal);
-
-          proteinVal = (((proteinVal * 4) / totalCal)) * 100;
-          console.log(proteinVal);
+            var totalCarbPerc = (((carbVal * 4) / totalCal)) * 100;
 
 
-          carbVal = (((carbVal * 4) / totalCal)) * 100;
+            var totalFatPerc = (((fatVal * 9) / totalCal)) * 100;
 
-          console.log("6:" + carbVal);
 
-          fatVal = (((fatVal * 4) / totalCal)) * 100;
-          console.log(fatVal);
+            // console.log('cals: ' + totalCal);
+            Recipe.update({
+              _id: recipeFindId
+            }, {
+              $set: {
+                totalCalories: totalCal,
+                percentProtein: totalProtPerc,
+                percentCarbohydrates: totalCarbPerc,
+                percentFat: totalFatPerc,
+                calculated: true
 
-          Recipe.update({
-            _id: recipeFindId
-          }, {
-            $set: {
-              totalCalories: totalCal,
-              percentProtein: proteinVal,
-              percentCarbohydrates: carbVal,
-              percentFat: fatVal,
-              calculated: true
+              }
+            }, {
+              upsert: true,
+              multi: true
+            }, function(err, ingredients) {
+              if (err) {
+                console.error(err);
+              } else {
+                console.log("ingredient updated!");
+              }
+            });
+          }
 
-            }
-          }, {
-            upsert: true,
-            multi: true
-          }, function(err, ingredients) {
-            if (err) {
-              console.error(err);
-            } else {
-              console.log("ingredient updated!");
-            }
-          });
-        }
+        })
+      }
 
-      })
-    }
-
-  })
-}
-
-// var calculateValues = function() {
-//   Recipe.find({
-//       totalProtein: {
-//         $gte: 10
-//       }
-//     },
-//     function(err, recipe) {
-//       console.log(recipe);
+    })
+  }
+  // var calculateValues = function() {
+  //   Recipe.find({
+  //       totalProtein: {
+  //         $gte: 10
+  //       }
+  //     },
+  //     function(err, recipe) {
+  //       console.log(recipe);
 
 //     })
 // }
@@ -261,7 +258,7 @@ function processNutrientsHandler(ingredient, sourceUrl, ingBody) {
 }
 
 
-function getIngredientNutrients(joinedIng, sourceUrl) {
+function getIngredientNutrients(joinedIng, sourceUrl, finalCallback) {
   // console.log("this is now inside get ingredients function %j", joinedIng)
   // for each ingredient in an array
   // var getNutrientsPromiseArray = [];
@@ -299,6 +296,7 @@ function getIngredientNutrients(joinedIng, sourceUrl) {
     request(getNutrientInfoRequest, function(error, response, body) {
       if (error) {
         console.log(" ERROR = " + error);
+        finalCallback(e);
       } else {
         ///response is an object with results as a key and value as nutrition details
         console.log("1: nutrition status = " + response.statusCode);
@@ -310,26 +308,54 @@ function getIngredientNutrients(joinedIng, sourceUrl) {
         if (response.statusCode === 400) {
           console.log("Bad request code " + response.statusCode);
           var badReqIngredient = ingBody;
-          ingBody = ingBody.replace(/boneless|skinless|shredded|peeled|sliced|pounded|diced|pitted|melted|powdered|flavoured|flavoring|cleaned|keep|refrigerated|chilled|cold|whole|new|,/ig, function replacer(match) {
+          badReqIngredient = badReqIngredient.replace(/boneless|skinless|shredded|peeled|sliced|pounded|diced|pitted|melted|powdered|flavoured|flavoring|cleaned|keep|refrigerated|chilled|cold|whole|new|and|grated|room|temperature,/ig, function replacer(match) {
 
             return "";
           });
-          console.log("2: %j", ingBody)
-          ingBody = ingBody.replace(/pound|pounds/ig, function replaceValues(match) {
+          console.log("2: %j", badReqIngredient)
+          badReqIngredient = badReqIngredient.replace(/pound|pounds/ig, function replaceValues(match) {
             return "lb"
           });
-          console.log("3: %j", ingBody)
-          ingBody = ingBody.replace(/ounce|ounces/ig, function replaceValues(match) {
+          console.log("3: %j", badReqIngredient)
+          badReqIngredient = badReqIngredient.replace(/ounce|ounces/ig, function replaceValues(match) {
             return "oz"
           })
-          console.log("4: %j", ingBody)
-          ingBody = ingBody.replace(/ *\([^)]*\) */g, "");
+          console.log("4: %j", badReqIngredient)
+          badReqIngredient = badReqIngredient.replace(/ *\([^)]*\) */g, "");
           console.log("4 b : %j", ingBody);
 
-          request(getNutrientInfoRequest, function(error, resp, body) {
+          console.log("getNutrientInfoRequest is %j", getNutrientInfoRequest);
+
+          request({
+            // jar: null,
+            method: 'POST',
+            headers: {
+              'Content-Type': 'text/plain',
+              'X-APP-ID': '1e6399d7',
+              'X-APP-KEY': '4088d6a1aca0376052356e4872c24b68'
+            },
+            uri: {
+              protocol: 'https:',
+              slashes: true,
+              auth: null,
+              host: 'api.nutritionix.com',
+              port: 443,
+              hostname: 'api.nutritionix.com',
+              hash: null,
+              search: null,
+              query: null,
+              pathname: '/v2/natural',
+              path: '/v2/natural',
+              href: 'https://api.nutritionix.com/v2/natural'
+            },
+            body: badReqIngredient
+
+          }, function(error, resp, body) {
             if (error) {
               console.log(" ERROR = " + error);
+              finalCallback(error);
             } else {
+
               ///response is an object with results as a key and value as nutrition details
               console.log("5a  nutrition status = " + resp.statusCode);
               // console.log("nutrition: body = " + response.body);
@@ -338,14 +364,15 @@ function getIngredientNutrients(joinedIng, sourceUrl) {
               var result = res.results;
               if (resp.statusCode === 200) {
                 console.log("4 nutrition status = " + resp.statusCode);
-                console.log("5b badReqIngredient %j", badReqIngredient)
+                console.log("5b badReqIngredient %j", ingBody)
                 result.forEach(function(ingredient) {
-                  processNutrientsHandler(ingredient, sourceUrl, badReqIngredient)
+                  processNutrientsHandler(ingredient, sourceUrl, ingBody)
                 })
+                finalCallback(null, result);
               } else {
-                console.log("6: badReqIngredient %j", badReqIngredient)
+                console.log("6: ingBody %j", ingBody)
                 var ingredientsInsert = {
-                  name: badReqIngredient
+                  name: ingBody
                 }
                 var recipeUpdate = Recipe.update({
                   source_url: sourceUrl
@@ -370,6 +397,7 @@ function getIngredientNutrients(joinedIng, sourceUrl) {
           result.forEach(function(ingredient) {
             processNutrientsHandler(ingredient, sourceUrl, ingBody)
           })
+          finalCallback(null, result);
         }
       }
     });
@@ -408,9 +436,24 @@ function processRemoteRecipe(error, response, body) {
     console.log("create recipe: %j", rec);
 
     // calls getIngredientNutrients to make a http request to get nutrition details
-    getIngredientNutrients(recipeIngredients, source_url);
+    // getIngredientNutrients(recipeIngredients, source_url, function(r) {
+    //   return;
+    // });
 
-    // calculateValues();
+    (new Promise(function(resolve, reject) {
+      getIngredientNutrients(recipeIngredients, source_url, function(e, r) {
+        if (e) {
+          return reject(e);
+        }
+        resolve(r);
+      });
+    })).then(function() {
+      calculateValues()
+    }).catch(function(err) {
+      // handle rejection
+    });
+
+    calculateValues();
 
     // Promise.all(ingredientPromises).then(function(resolve, reject) {
     //   if (reject) {
@@ -454,7 +497,7 @@ function handleListRecipes(error, response, body) {
     //make a request to get each recipe detail
     // recipes.forEach(getRemoteRecipe);
     //for trial calling remoterecipes only for one recipe
-    getRemoteRecipe(recipes[2]);
+    getRemoteRecipe(recipes[4]);
     console.log("handleListRecipes:")
   }
 };

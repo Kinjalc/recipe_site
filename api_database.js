@@ -19,277 +19,361 @@ var nutritionix = new NutritionixClient({
 
 });
 var calculateValues = function() {
-  Recipe.find({
-    calculated: false
-  }, function(err, recipes) {
-    if (recipes) {
-      console.log("1 " + recipes);
-      recipes.forEach(function(recipe) {
-        console.log("2 " + recipe);
+    Recipe.find({}, function(err, recipes) {
+      if (recipes) {
+        // console.log("1 " + recipes);
+        recipes.forEach(function(recipe) {
+          var recipeFindId = recipe.id
+          var ingredientsArray = recipe.ingredients;
+          if (ingredientsArray.length !== 0) {
+            // console.log("4 " + ingredientsArray);
+            var proteinVal = 0;
+            var carbVal = 0;
+            var fatVal = 0;
+            ingredientsArray.forEach(function(ingredient) {
+              // console.log(ingredient.protein.value);
+              if (ingredient.protein.value && ingredient.carbohydrates.value && ingredient.fat.value) {
+
+                proteinVal += ingredient.protein.value;
+                carbVal += ingredient.carbohydrates.value;
+                fatVal += ingredient.fat.value;
+              }
+
+              // console.log(fatVal);
+            });
+            // console.log('cals: ' + proteinVal);
+            // console.log('cals: ' + carbVal);
+            // console.log('cals: ' + fatVal);
+            var totalCal = (4 * proteinVal) + (4 * carbVal) + (9 * fatVal);
+
+            var totalProtPerc = (((proteinVal * 4) / totalCal)) * 100;
 
 
-        var recipeFindId = recipe.id
-        var ingredientsArray = recipe.ingredients;
-        if (ingredientsArray.length !== 0) {
-          console.log("4 " + ingredientsArray);
-          var proteinVal = 0;
-          var carbVal = 0;
-          var fatVal = 0;
-          ingredientsArray.forEach(function(ingredient) {
-            proteinVal += ingredient.protein.value;
-            console.log(proteinVal);
-            carbVal += ingredient.carbohydrates.value;
-            console.log(carbVal);
-            fatVal += ingredient.fat.value;
-            console.log(fatVal);
-
-          });
-          var totalCal = (4 * proteinVal) + (4 * carbVal) + (9 * fatVal);
-          console.log("5, calories: " + totalCal);
-
-          proteinVal = (((proteinVal * 4) / totalCal)) * 100;
-          console.log(proteinVal);
+            var totalCarbPerc = (((carbVal * 4) / totalCal)) * 100;
 
 
-          carbVal = (((carbVal * 4) / totalCal)) * 100;
+            var totalFatPerc = (((fatVal * 9) / totalCal)) * 100;
 
-          console.log("6:" + carbVal);
 
-          fatVal = (((fatVal * 4) / totalCal)) * 100;
-          console.log(fatVal);
+            // console.log('cals: ' + totalCal);
+            Recipe.update({
+              _id: recipeFindId
+            }, {
+              $set: {
+                totalCalories: totalCal,
+                percentProtein: totalProtPerc,
+                percentCarbohydrates: totalCarbPerc,
+                percentFat: totalFatPerc,
+                calculated: true
 
-          Recipe.update({
-            _id: recipeFindId
-          }, {
-            $set: {
-              totalCalories: totalCal,
-              percentProtein: proteinVal,
-              percentCarbohydrates: carbVal,
-              percentFat: fatVal,
-              calculated: true
+              }
+            }, {
+              upsert: true,
+              multi: true
+            }, function(err, ingredients) {
+              if (err) {
+                console.error(err);
+              } else {
+                console.log("ingredient updated!");
+              }
+            });
+          }
 
-            }
-          }, {
-            upsert: true,
-            multi: true
-          }, function(err, ingredients) {
-            if (err) {
-              console.error(err);
-            } else {
-              console.log("ingredient updated!");
-            }
-          });
-        }
+        })
+      }
 
-      })
-    }
-
-  })
-}
-
-// var calculateValues = function() {
-//   Recipe.find({
-//       totalProtein: {
-//         $gte: 10
-//       }
-//     },
-//     function(err, recipe) {
-//       console.log(recipe);
+    })
+  }
+  // var calculateValues = function() {
+  //   Recipe.find({
+  //       totalProtein: {
+  //         $gte: 10
+  //       }
+  //     },
+  //     function(err, recipe) {
+  //       console.log(recipe);
 
 //     })
 // }
+function processNutrientsHandler(ingredient, sourceUrl, ingBody) {
+  var nutrient = ingredient.nutrients;
+  console.log("nutrient length is: " + nutrient.length);
+
+  if (nutrient.length > 0) {
+    //define variable and assign them values in the for -loop below
+    var proteinValue;
+    var proteinUnit;
+    var carbohydratesValue;
+    var carbohydratesUnit;
+    var lipidValue;
+    var lipidUnit;
+    var polyUnsatValue;
+    var polyUnsatUnit;
+    var monoUnsatValue;
+    var monoUnsatUnit;
+    var satValue;
+    var satUnit;
+    var cholesterolValue;
+    var cholesterolUnit;
+    var ironValue;
+    var ironUnit;
+    var vitaminCValue;
+    var vitaminCUnit;
+    var vitaminAValue;
+    var vitaminAUnit;
+    var vitaminB6Value;
+    var vitaminB6Unit;
+    var vitaminB12Value;
+    var vitaminB12Unit;
 
 
-function getIngredientNutrients(joinedIng, sourceUrl) {
-  console.log("this is now inside get ingredients function %j", joinedIng)
+    //go through each nutrient in the array and look for the nutrients- carbs,lipids,etc
+    for (var j = 0; j < nutrient.length; j++) {
+      if (nutrient[j].name === "Protein") {
+        proteinValue = nutrient[j].value;
+        proteinUnit = nutrient[j].unit;
+        //console.log("this is nutrient info for protein: %j%j ", proteinValue, proteinUnit);
+      } else if (nutrient[j].name === "Carbohydrate, by difference") {
+        carbohydratesValue = nutrient[j].value;
+        carbohydratesUnit = nutrient[j].unit;
+        //console.log("this is nutrient info for carbs: %j%j ", carbohydratesValue, carbohydratesUnit);
+      } else if (nutrient[j].name === "Total lipid (fat)") {
+        lipidValue = nutrient[j].value;
+        lipidUnit = nutrient[j].unit;
+        //console.log("this is nutrient info for lipid: %j%j ", lipidValue, lipidUnit);
+      } else if (nutrient[j].name === "Fatty acids, total polyunsaturated") {
+        polyUnsatValue = nutrient[j].value;
+        polyUnsatUnit = nutrient[j].unit;
+        //console.log("this is nutrient info for polyUnsat: %j%j ", polyUnsatValue, polyUnsatUnit);
+      } else if (nutrient[j].name === "Fatty acids, total monounsaturated") {
+        monoUnsatValue = nutrient[j].value;
+        monoUnsatUnit = nutrient[j].unit;
+        //console.log("this is nutrient info for monoUnsat: %j%j ", monoUnsatValue, monoUnsatUnit);
+      } else if (nutrient[j].name === "Fatty acids, total monounsaturated") {
+        satValue = nutrient[j].value;
+        satUnit = nutrient[j].unit;
+        //console.log("this is nutrient info for satValue: %j%j ", monoUnsatValue, monoUnsatUnit);
+      } else if (nutrient[j].name === "Iron,FE") {
+        ironValue = nutrient[j].value;
+        ironUnit = nutrient[j].unit;
+        //console.log("this is nutrient info for iron: %j%j ", monoUnsatValue, monoUnsatUnit);
+      } else if (nutrient[j].name === "Vitamin C, total ascorbic acid") {
+        vitaminCValue = nutrient[j].value;
+        vitaminCUnit = nutrient[j].unit;
+        //console.log("this is nutrient info for monoUnsat: %j%j ", vitaminCValue, vitaminCUnit);
+      } else if (nutrient[j].name === "Vitamin B-6") {
+        vitaminB6Value = nutrient[j].value;
+        vitaminB6Unit = nutrient[j].unit;
+        //console.log("this is nutrient info for B6: %j%j ", vitaminB6Value, vitaminB6Unit);
+      } else if (nutrient[j].name === "Vitamin B-6") {
+        vitaminB6Value = nutrient[j].value;
+        vitaminB6Unit = nutrient[j].unit;
+        //console.log("this is nutrient info for B6: %j%j ", vitaminB6Value, vitaminB6Unit);
+      } else if (nutrient[j].name === "Vitamin B-12") {
+        vitaminB12Value = nutrient[j].value;
+        vitaminB12Unit = nutrient[j].unit;
+        //console.log("this is nutrient info for B12: %j%j ", vitaminB12Value, vitaminB12Unit);
+      } else if (nutrient[j].name === "Vitamin A, RAE") {
+        vitaminAValue = nutrient[j].value;
+        vitaminAUnit = nutrient[j].unit;
+        //console.log("this is nutrient info for vitA: %j%j ", vitaminAValue, vitaminAUnit);
+      }
+    }
+    // console.log("Ingredient is %j", ingBody);
+    var ingredientsInsert = {
+        name: ingBody,
+        protein: {
+          value: proteinValue,
+          unit: proteinUnit
+        },
+        carbohydrates: {
+          value: carbohydratesValue,
+          unit: carbohydratesUnit
+        },
+        fat: {
+          value: lipidValue,
+          unit: lipidUnit
+        },
+        monoUnsaturatedFat: {
+          value: monoUnsatValue,
+          unit: monoUnsatUnit
+        },
+        polyUnsaturatedFat: {
+          value: polyUnsatValue,
+          unit: polyUnsatUnit
+        },
+        saturatedFat: {
+          value: satValue,
+          unit: satUnit
+        },
+        cholesterol: {
+          value: cholesterolValue,
+          unit: cholesterolUnit
+        },
+        iron: {
+          value: ironValue,
+          unit: ironUnit
+        },
+        vitaminC: {
+          value: vitaminCValue,
+          unit: vitaminCUnit
+        },
+        vitaminA: {
+          value: vitaminAValue,
+          unit: vitaminAUnit
+        },
+        vitaminB6: {
+          value: vitaminB6Value,
+          unit: vitaminB6Unit
+        },
+        vitaminB12: {
+          value: vitaminB12Value,
+          unit: vitaminB12Unit
+        }
+      }
+      //   var ingredientInsert = {
+      //     name: ingBody,
+
+
+    //   }
+    var recipeUpdate = Recipe.update({
+      source_url: sourceUrl
+    }, {
+      $push: {
+        ingredients: ingredientsInsert
+      }
+    }, function(err, ingredients) {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log("success!");
+      }
+    });
+
+    // resolve(recipeUpdate);
+  }
+
+  // getNutrientsPromiseArray.push(getNutrientsPromise);
+
+}
+
+
+function getIngredientNutrients(joinedIng, sourceUrl, finalCallback) {
+  // console.log("this is now inside get ingredients function %j", joinedIng)
   // for each ingredient in an array
-  var getNutrientsPromiseArray = [];
+  // var getNutrientsPromiseArray = [];
+
 
   joinedIng.forEach(function(ing) {
     var ingBody = ing;
-    var getNutrientsPromise = new Promise(function(resolve, reject) {
-      // var ingBody = joinedIng.join("\n");
-      console.log("joined ingredients sent for query are %j", ingBody)
-      request({
-        // jar: null,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'text/plain',
-          'X-APP-ID': '1e6399d7',
-          'X-APP-KEY': '4088d6a1aca0376052356e4872c24b68'
-        },
-        uri: {
-          protocol: 'https:',
-          slashes: true,
-          auth: null,
-          host: 'api.nutritionix.com',
-          port: 443,
-          hostname: 'api.nutritionix.com',
-          hash: null,
-          search: null,
-          query: null,
-          pathname: '/v2/natural',
-          path: '/v2/natural',
-          href: 'https://api.nutritionix.com/v2/natural'
-        },
-        body: ingBody
+    // var ingBody = joinedIng.join("\n");
+    console.log("joined ingredient sent for query are %j", ingBody)
+    var getNutrientInfoRequest = {
+      // jar: null,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain',
+        'X-APP-ID': '1e6399d7',
+        'X-APP-KEY': '4088d6a1aca0376052356e4872c24b68'
+      },
+      uri: {
+        protocol: 'https:',
+        slashes: true,
+        auth: null,
+        host: 'api.nutritionix.com',
+        port: 443,
+        hostname: 'api.nutritionix.com',
+        hash: null,
+        search: null,
+        query: null,
+        pathname: '/v2/natural',
+        path: '/v2/natural',
+        href: 'https://api.nutritionix.com/v2/natural'
+      },
+      body: ingBody
 
-      }, function(error, response, body) {
-        if (error) {
-          console.log(" ERROR = " + error);
-        } else {
-          ///response is an object with results as a key and value as nutrition details
-          console.log("nutrition status = " + response.statusCode);
-          // console.log("nutrition: body = " + response.body);
-          var res = response.body;
-          res = JSON.parse(res);
-          var result = res.results;
-          //if ingredient format is not correct
-          if (response.statusCode === 400) {
-            console.log("Bad request code " + response.statusCode);
+    };
+    request(getNutrientInfoRequest, function(error, response, body) {
+      if (error) {
+        console.log(" ERROR = " + error);
+        finalCallback(e);
+      } else {
+        ///response is an object with results as a key and value as nutrition details
+        console.log("1: nutrition status = " + response.statusCode);
+        // console.log("nutrition: body = " + response.body);
+        var res = response.body;
+        res = JSON.parse(res);
+        var result = res.results;
+        //if ingredient format is not correct
+        if (response.statusCode === 400) {
+          console.log("Bad request code " + response.statusCode);
+          var badReqIngredient = ingBody;
+          badReqIngredient = badReqIngredient.replace(/boneless|skinless|shredded|peeled|sliced|pounded|diced|pitted|melted|powdered|flavoured|flavoring|cleaned|keep|refrigerated|chilled|cold|whole|new|and|grated|room|temperature,/ig, function replacer(match) {
 
-          } else if (response.statusCode === 200) {
-            result.forEach(function(ingredient) {
-              var nutrient = ingredient.nutrients;
-              console.log("nutrient length is: " + nutrient.length);
+            return "";
+          });
+          console.log("2: %j", badReqIngredient)
+          badReqIngredient = badReqIngredient.replace(/pound|pounds/ig, function replaceValues(match) {
+            return "lb"
+          });
+          console.log("3: %j", badReqIngredient)
+          badReqIngredient = badReqIngredient.replace(/ounce|ounces/ig, function replaceValues(match) {
+            return "oz"
+          })
+          console.log("4: %j", badReqIngredient)
+          badReqIngredient = badReqIngredient.replace(/ *\([^)]*\) */g, "");
+          console.log("4 b : %j", ingBody);
 
-              if (nutrient.length > 0) {
-                //define variable and assign them values in the for -loop below
-                var proteinValue;
-                var proteinUnit;
-                var carbohydratesValue;
-                var carbohydratesUnit;
-                var lipidValue;
-                var lipidUnit;
-                var polyUnsatValue;
-                var polyUnsatUnit;
-                var monoUnsatValue;
-                var monoUnsatUnit;
-                var satValue;
-                var satUnit;
-                var cholesterolValue;
-                var cholesterolUnit;
-                var ironValue;
-                var ironUnit;
-                var vitaminCValue;
-                var vitaminCUnit;
-                var vitaminAValue;
-                var vitaminAUnit;
-                var vitaminB6Value;
-                var vitaminB6Unit;
-                var vitaminB12Value;
-                var vitaminB12Unit;
+          console.log("getNutrientInfoRequest is %j", getNutrientInfoRequest);
 
+          request({
+            // jar: null,
+            method: 'POST',
+            headers: {
+              'Content-Type': 'text/plain',
+              'X-APP-ID': '1e6399d7',
+              'X-APP-KEY': '4088d6a1aca0376052356e4872c24b68'
+            },
+            uri: {
+              protocol: 'https:',
+              slashes: true,
+              auth: null,
+              host: 'api.nutritionix.com',
+              port: 443,
+              hostname: 'api.nutritionix.com',
+              hash: null,
+              search: null,
+              query: null,
+              pathname: '/v2/natural',
+              path: '/v2/natural',
+              href: 'https://api.nutritionix.com/v2/natural'
+            },
+            body: badReqIngredient
 
-                //go through each nutrient in the array and look for the nutrients- carbs,lipids,etc
-                for (var j = 0; j < nutrient.length; j++) {
-                  if (nutrient[j].name === "Protein") {
-                    proteinValue = nutrient[j].value;
-                    proteinUnit = nutrient[j].unit;
-                    //console.log("this is nutrient info for protein: %j%j ", proteinValue, proteinUnit);
-                  } else if (nutrient[j].name === "Carbohydrate, by difference") {
-                    carbohydratesValue = nutrient[j].value;
-                    carbohydratesUnit = nutrient[j].unit;
-                    //console.log("this is nutrient info for carbs: %j%j ", carbohydratesValue, carbohydratesUnit);
-                  } else if (nutrient[j].name === "Total lipid (fat)") {
-                    lipidValue = nutrient[j].value;
-                    lipidUnit = nutrient[j].unit;
-                    //console.log("this is nutrient info for lipid: %j%j ", lipidValue, lipidUnit);
-                  } else if (nutrient[j].name === "Fatty acids, total polyunsaturated") {
-                    polyUnsatValue = nutrient[j].value;
-                    polyUnsatUnit = nutrient[j].unit;
-                    //console.log("this is nutrient info for polyUnsat: %j%j ", polyUnsatValue, polyUnsatUnit);
-                  } else if (nutrient[j].name === "Fatty acids, total monounsaturated") {
-                    monoUnsatValue = nutrient[j].value;
-                    monoUnsatUnit = nutrient[j].unit;
-                    //console.log("this is nutrient info for monoUnsat: %j%j ", monoUnsatValue, monoUnsatUnit);
-                  } else if (nutrient[j].name === "Fatty acids, total monounsaturated") {
-                    satValue = nutrient[j].value;
-                    satUnit = nutrient[j].unit;
-                    //console.log("this is nutrient info for satValue: %j%j ", monoUnsatValue, monoUnsatUnit);
-                  } else if (nutrient[j].name === "Iron,FE") {
-                    ironValue = nutrient[j].value;
-                    ironUnit = nutrient[j].unit;
-                    //console.log("this is nutrient info for iron: %j%j ", monoUnsatValue, monoUnsatUnit);
-                  } else if (nutrient[j].name === "Vitamin C, total ascorbic acid") {
-                    vitaminCValue = nutrient[j].value;
-                    vitaminCUnit = nutrient[j].unit;
-                    //console.log("this is nutrient info for monoUnsat: %j%j ", vitaminCValue, vitaminCUnit);
-                  } else if (nutrient[j].name === "Vitamin B-6") {
-                    vitaminB6Value = nutrient[j].value;
-                    vitaminB6Unit = nutrient[j].unit;
-                    //console.log("this is nutrient info for B6: %j%j ", vitaminB6Value, vitaminB6Unit);
-                  } else if (nutrient[j].name === "Vitamin B-6") {
-                    vitaminB6Value = nutrient[j].value;
-                    vitaminB6Unit = nutrient[j].unit;
-                    //console.log("this is nutrient info for B6: %j%j ", vitaminB6Value, vitaminB6Unit);
-                  } else if (nutrient[j].name === "Vitamin B-12") {
-                    vitaminB12Value = nutrient[j].value;
-                    vitaminB12Unit = nutrient[j].unit;
-                    //console.log("this is nutrient info for B12: %j%j ", vitaminB12Value, vitaminB12Unit);
-                  } else if (nutrient[j].name === "Vitamin A, RAE") {
-                    vitaminAValue = nutrient[j].value;
-                    vitaminAUnit = nutrient[j].unit;
-                    //console.log("this is nutrient info for vitA: %j%j ", vitaminAValue, vitaminAUnit);
-                  }
-                }
-                console.log("Ingredient is %j", ingBody);
+          }, function(error, resp, body) {
+            if (error) {
+              console.log(" ERROR = " + error);
+              finalCallback(error);
+            } else {
+
+              ///response is an object with results as a key and value as nutrition details
+              console.log("5a  nutrition status = " + resp.statusCode);
+              // console.log("nutrition: body = " + response.body);
+              var res = resp.body;
+              res = JSON.parse(res);
+              var result = res.results;
+              if (resp.statusCode === 200) {
+                console.log("4 nutrition status = " + resp.statusCode);
+                console.log("5b badReqIngredient %j", ingBody)
+                result.forEach(function(ingredient) {
+                  processNutrientsHandler(ingredient, sourceUrl, ingBody)
+                })
+                finalCallback(null, result);
+              } else {
+                console.log("6: ingBody %j", ingBody)
                 var ingredientsInsert = {
-                    name: ingBody,
-                    protein: {
-                      value: proteinValue,
-                      unit: proteinUnit
-                    },
-                    carbohydrates: {
-                      value: carbohydratesValue,
-                      unit: carbohydratesUnit
-                    },
-                    fat: {
-                      value: lipidValue,
-                      unit: lipidUnit
-                    },
-                    monoUnsaturatedFat: {
-                      value: monoUnsatValue,
-                      unit: monoUnsatUnit
-                    },
-                    polyUnsaturatedFat: {
-                      value: polyUnsatValue,
-                      unit: polyUnsatUnit
-                    },
-                    saturatedFat: {
-                      value: satValue,
-                      unit: satUnit
-                    },
-                    cholesterol: {
-                      value: cholesterolValue,
-                      unit: cholesterolUnit
-                    },
-                    iron: {
-                      value: ironValue,
-                      unit: ironUnit
-                    },
-                    vitaminC: {
-                      value: vitaminCValue,
-                      unit: vitaminCUnit
-                    },
-                    vitaminA: {
-                      value: vitaminAValue,
-                      unit: vitaminAUnit
-                    },
-                    vitaminB6: {
-                      value: vitaminB6Value,
-                      unit: vitaminB6Unit
-                    },
-                    vitaminB12: {
-                      value: vitaminB12Value,
-                      unit: vitaminB12Unit
-                    }
-                  }
-                  //   var ingredientInsert = {
-                  //     name: ingBody,
-
-
-                //   }
+                  name: ingBody
+                }
                 var recipeUpdate = Recipe.update({
                   source_url: sourceUrl
                 }, {
@@ -300,23 +384,28 @@ function getIngredientNutrients(joinedIng, sourceUrl) {
                   if (err) {
                     console.error(err);
                   } else {
-                    console.log("success!");
+                    console.log(" bad ing success!");
                   }
-                });
-
-                resolve(recipeUpdate);
+                })
               }
 
-              getNutrientsPromiseArray.push(getNutrientsPromise);
+            }
+          })
 
-            })
-          }
+
+        } else if (response.statusCode === 200) {
+          result.forEach(function(ingredient) {
+            processNutrientsHandler(ingredient, sourceUrl, ingBody)
+          })
+          finalCallback(null, result);
         }
-      });
+      }
     });
+
   });
-  return getNutrientsPromiseArray;
-};
+}
+// return getNutrientsPromiseArray;
+
 
 
 
@@ -333,32 +422,37 @@ function processRemoteRecipe(error, response, body) {
     var recipeIngredients = recipe.ingredients;
     //filtering recipes according to publishes so that it will easy to scrape methods from the same site.
 
-    // if (recipePublisher === "All Recipes") {
-    console.log("processRemoteRecipes: publisher recipes =  " + recipeIngredients);
-    console.log("processRemoteRecipes: publisher recipes =  " + recipePublisher);
-    var source_url = recipe.source_url;
-    var rec = Recipe.create({
-      title: recipe.title,
-      // ingredients: recipe.ingredients,
-      source_url: recipe.source_url,
-      image_url: recipe.image_url,
-      recipe_id: recipe.recipe_id
-    });
-    console.log("create recipe: %j", rec);
+    if (recipePublisher === "All Recipes") {
+      // console.log("processRemoteRecipes: publisher recipes =  " + recipeIngredients);
+      // console.log("processRemoteRecipes: publisher recipes =  " + recipePublisher);
+      var source_url = recipe.source_url;
+      var rec = Recipe.create({
+        title: recipe.title,
+        // ingredients: recipe.ingredients,
+        source_url: recipe.source_url,
+        image_url: recipe.image_url,
+        recipe_id: recipe.recipe_id
+      });
+      console.log("create recipe: %j", rec);
 
-    // calls getIngredientNutrients to make a http request to get nutrition details
-    var ingredientPromises = getIngredientNutrients(recipeIngredients, source_url);
+      // calls getIngredientNutrients to make a http request to get nutrition details
+      // getIngredientNutrients(recipeIngredients, source_url, function(r) {
+      //   return;
+      // });
 
-    Promise.all(ingredientPromises).then(function(resolve, reject) {
-      if (reject) {
-        console.log("rejected");
-      } else if (resolve) {
+      (new Promise(function(resolve, reject) {
+        getIngredientNutrients(recipeIngredients, source_url, function(e, r) {
+          if (e) {
+            return reject(e);
+          }
+          resolve(r);
+        });
+      })).then(function() {
         calculateValues();
-        console.log("resolved")
-      }
-    })
+      }).catch(function(err) {
 
-
+      });
+    }
 
   }
 }
@@ -389,10 +483,10 @@ function handleListRecipes(error, response, body) {
     // console.log("handleListRecipes: count = " + count);
     // console.log("handleListRecipes: recipes = " + recipes);
     //make a request to get each recipe detail
-    // recipes.forEach(getRemoteRecipe);
-    //for trial calling remoterecipes only for one recipe
-    getRemoteRecipe(recipes[5]);
-    console.log("handleListRecipes:")
+    recipes.forEach(getRemoteRecipe);
+    // //for trial calling remoterecipes only for one recipe
+    // getRemoteRecipe(recipes[4]);
+    // console.log("handleListRecipes:")
   }
 };
 
