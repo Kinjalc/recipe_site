@@ -14,12 +14,14 @@ app.use(jsonParser);
 
 var NutritionixClient = require('nutritionix');
 var nutritionix = new NutritionixClient({
-  appId: '1e6399d7',
-  appKey: '4088d6a1aca0376052356e4872c24b68'
+  appId: 'a120429b',
+  appKey: '3e1551bafdb518dba63b0555ac4f1482'
 
 });
 var calculateValues = function() {
-    Recipe.find({}, function(err, recipes) {
+    Recipe.find({
+      // calculated: false
+    }, function(err, recipes) {
       if (recipes) {
         // console.log("1 " + recipes);
         recipes.forEach(function(recipe) {
@@ -30,20 +32,38 @@ var calculateValues = function() {
             var proteinVal = 0;
             var carbVal = 0;
             var fatVal = 0;
+            var monoUnSatVal = 0;
+            var polyUnSatVal = 0;
+            // var satVal = 0;
+            var vitCVal = 0;
+            var vitAVal = 0;
+            var vitB6Val = 0;
+            var vitB12Val = 0;
+
             ingredientsArray.forEach(function(ingredient) {
               // console.log(ingredient.protein.value);
               if (ingredient.protein.value && ingredient.carbohydrates.value && ingredient.fat.value) {
-
+                // console.log('values: ' + ingredient.protein.value);
+                // console.log('values: ' + ingredient.carbohydrates.value);
                 proteinVal += ingredient.protein.value;
                 carbVal += ingredient.carbohydrates.value;
                 fatVal += ingredient.fat.value;
+                // console.log('cals: ' + proteinVal);
+                // console.log('cals: ' + carbVal);
+                // console.log('cals: ' + fatVal)
+                monoUnSatVal += ingredient.monoUnsaturatedFat.value;
+                polyUnSatVal += ingredient.polyUnsaturatedFat.value;
+                // satVal += ingredient.saturatedFat.value;
+                vitCVal += ingredient.vitaminC.value;
+                vitAVal += ingredient.vitaminA.value;
+                vitB6Val += ingredient.vitaminB6.value;
+                vitB12Val += ingredient.vitaminB12.value;
+
               }
 
               // console.log(fatVal);
             });
-            // console.log('cals: ' + proteinVal);
-            // console.log('cals: ' + carbVal);
-            // console.log('cals: ' + fatVal);
+
             var totalCal = (4 * proteinVal) + (4 * carbVal) + (9 * fatVal);
 
             var totalProtPerc = (((proteinVal * 4) / totalCal)) * 100;
@@ -64,6 +84,13 @@ var calculateValues = function() {
                 percentProtein: totalProtPerc,
                 percentCarbohydrates: totalCarbPerc,
                 percentFat: totalFatPerc,
+                monoUnsaturatedFat: monoUnSatVal,
+                polyUnsaturatedFat: polyUnSatVal,
+                // saturatedFat: satVal,
+                vitaminC: vitCVal,
+                vitaminA: vitAVal,
+                vitaminB6: vitB6Val,
+                vitaminB12: vitB12Val,
                 calculated: true
 
               }
@@ -149,11 +176,13 @@ function processNutrientsHandler(ingredient, sourceUrl, ingBody) {
         monoUnsatValue = nutrient[j].value;
         monoUnsatUnit = nutrient[j].unit;
         //console.log("this is nutrient info for monoUnsat: %j%j ", monoUnsatValue, monoUnsatUnit);
-      } else if (nutrient[j].name === "Fatty acids, total monounsaturated") {
-        satValue = nutrient[j].value;
-        satUnit = nutrient[j].unit;
-        //console.log("this is nutrient info for satValue: %j%j ", monoUnsatValue, monoUnsatUnit);
-      } else if (nutrient[j].name === "Iron,FE") {
+      }
+      // else if (nutrient[j].name === "Fatty acids, total monounsaturated") {
+      //   satValue = nutrient[j].value;
+      //   satUnit = nutrient[j].unit;
+      //   //console.log("this is nutrient info for satValue: %j%j ", monoUnsatValue, monoUnsatUnit);
+      // }
+      else if (nutrient[j].name === "Iron,FE") {
         ironValue = nutrient[j].value;
         ironUnit = nutrient[j].unit;
         //console.log("this is nutrient info for iron: %j%j ", monoUnsatValue, monoUnsatUnit);
@@ -161,11 +190,13 @@ function processNutrientsHandler(ingredient, sourceUrl, ingBody) {
         vitaminCValue = nutrient[j].value;
         vitaminCUnit = nutrient[j].unit;
         //console.log("this is nutrient info for monoUnsat: %j%j ", vitaminCValue, vitaminCUnit);
-      } else if (nutrient[j].name === "Vitamin B-6") {
-        vitaminB6Value = nutrient[j].value;
-        vitaminB6Unit = nutrient[j].unit;
-        //console.log("this is nutrient info for B6: %j%j ", vitaminB6Value, vitaminB6Unit);
-      } else if (nutrient[j].name === "Vitamin B-6") {
+      }
+      // else if (nutrient[j].name === "Vitamin B-6") {
+      //   vitaminB6Value = nutrient[j].value;
+      //   vitaminB6Unit = nutrient[j].unit;
+      //   //console.log("this is nutrient info for B6: %j%j ", vitaminB6Value, vitaminB6Unit);
+      // }
+      else if (nutrient[j].name === "Vitamin B-6") {
         vitaminB6Value = nutrient[j].value;
         vitaminB6Unit = nutrient[j].unit;
         //console.log("this is nutrient info for B6: %j%j ", vitaminB6Value, vitaminB6Unit);
@@ -206,14 +237,14 @@ function processNutrientsHandler(ingredient, sourceUrl, ingBody) {
           value: satValue,
           unit: satUnit
         },
-        cholesterol: {
-          value: cholesterolValue,
-          unit: cholesterolUnit
-        },
-        iron: {
-          value: ironValue,
-          unit: ironUnit
-        },
+        // cholesterol: {
+        //   value: cholesterolValue,
+        //   unit: cholesterolUnit
+        // },
+        // iron: {
+        //   value: ironValue,
+        //   unit: ironUnit
+        // },
         vitaminC: {
           value: vitaminCValue,
           unit: vitaminCUnit
@@ -273,8 +304,8 @@ function getIngredientNutrients(joinedIng, sourceUrl, finalCallback) {
       method: 'POST',
       headers: {
         'Content-Type': 'text/plain',
-        'X-APP-ID': '1e6399d7',
-        'X-APP-KEY': '4088d6a1aca0376052356e4872c24b68'
+        'X-APP-ID': 'a120429b',
+        'X-APP-KEY': '3e1551bafdb518dba63b0555ac4f1482'
       },
       uri: {
         protocol: 'https:',
@@ -308,7 +339,7 @@ function getIngredientNutrients(joinedIng, sourceUrl, finalCallback) {
         if (response.statusCode === 400) {
           console.log("Bad request code " + response.statusCode);
           var badReqIngredient = ingBody;
-          badReqIngredient = badReqIngredient.replace(/boneless|skinless|shredded|peeled|sliced|pounded|diced|pitted|melted|powdered|flavoured|flavoring|cleaned|keep|refrigerated|chilled|cold|whole|new|and|grated|room|temperature,/ig, function replacer(match) {
+          badReqIngredient = badReqIngredient.replace(/boneless|skinless|shredded|peeled|sliced|pounded|diced|pitted|melted|powdered|flavoured|flavoring|cleaned|keep|refrigerated|chilled|cold|whole|new|and|grated|room|temperature|thawed|frozen|coarsely|chopped|confectioners'|white|softnened|,/ig, function replacer(match) {
 
             return "";
           });
@@ -331,8 +362,8 @@ function getIngredientNutrients(joinedIng, sourceUrl, finalCallback) {
             method: 'POST',
             headers: {
               'Content-Type': 'text/plain',
-              'X-APP-ID': '1e6399d7',
-              'X-APP-KEY': '4088d6a1aca0376052356e4872c24b68'
+              'X-APP-ID': 'a120429b',
+              'X-APP-KEY': '3e1551bafdb518dba63b0555ac4f1482'
             },
             uri: {
               protocol: 'https:',
@@ -495,7 +526,7 @@ function handleListRecipes(error, response, body) {
 function listRecipes() {
 
   request_params = {
-    url: 'http://food2fork.com/api/search?key=ef82898c8dec1bd923cf8abcec885398&page=1',
+    url: 'http://food2fork.com/api/search?key=ef82898c8dec1bd923cf8abcec885398&page=2',
     // key: 'ef82898c8dec1bd923cf8abcec885398',
     // page: 1, //Query string data
     method: 'GET' //Specify the method

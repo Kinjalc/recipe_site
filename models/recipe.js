@@ -35,14 +35,6 @@ var recipeIngredientSchema = new mongoose.Schema({
     value: Number,
     unit: String
   },
-  cholesterol: {
-    value: Number,
-    unit: String
-  },
-  iron: {
-    value: Number,
-    unit: String
-  },
   vitaminC: {
     value: Number,
     unit: String
@@ -58,7 +50,15 @@ var recipeIngredientSchema = new mongoose.Schema({
   vitaminB12: {
     value: Number,
     unit: String
+  }
+
+}, {
+  toObject: {
+    virtuals: true
   },
+  toJSON: {
+    virtuals: true
+  }
 
 });
 
@@ -70,36 +70,71 @@ var recipeSchema = new mongoose.Schema({
     },
     ingredients: [recipeIngredientSchema],
     cookingTime: String,
-    servingSize: String,
-    source_url: String,
+    servingSize: {
+      type: String,
+      required: true,
+      default: 4
+    },
+    source_url: {
+      type: String,
+      unique: true,
+      required: true
+    },
     image_url: String,
     recipe_id: String,
     totalCalories: Number,
-    // caloriesFat: Number,
-    // caloriesProtein: Number,
-    // caloriesCarbohydrates: Number,
     percentProtein: Number, //grams
     percentCarbohydrates: Number,
     percentFat: Number,
-  // totalUnsatFat: Number,
-  // totalSatFat: Number,
-  // monoUnsaturatedFat:
-  // polyUnsaturatedFat: Number
-  // saturatedFat: Number
-  // cholesterol: Number
-  // iron: Number
-  // vitaminC: Number
-  // vitaminA: Number
-  // vitaminB6: Number
-  // vitaminB12: Number
+    monoUnsaturatedFat: Number,
+    polyUnsaturatedFat: Number,
+    saturatedFat: Number,
+    cholesterol: Number,
+    vitaminC: Number,
+    vitaminA: Number,
+    vitaminB6: Number,
+    vitaminB12: Number,
     calculated: {
       type: Boolean,
       required: true,
       default: false
     }
 
+
+  }, {
+    toObject: {
+      virtuals: true
+    },
+    toJSON: {
+      virtuals: true
+    }
+
   })
-  // recipeSchema.plugin(autopopulate);
+  // recipeIngredientSchema.virtual('vitaminAVal').get(function() {
+  //   if (this.vitaminA.value) {
+  //     return this.vitaminA.value;
+  //   }
+
+// })
+
+// recipeSchema.virtual('vitaminA').get(function() {
+//   var ing = this.ingredients;
+//   var vitAVal = 0;
+//   if (ing.length !== 0) {
+//     ing.forEach(function() {
+
+//       if (vitaminAVal.value) {
+//         console.log("vitamin A: %s",
+//           vitaminAVal.value)
+//         vitAVal += vitaminAVal.value
+//       }
+
+//     })
+
+//   }
+//   return vitAVal;
+// })
+// recipeSchema.plugin(autopopulate);
 
 var Recipe = mongoose.model('Recipe', recipeSchema);
 module.exports = Recipe;

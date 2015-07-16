@@ -14,12 +14,14 @@ app.use(jsonParser);
 
 var NutritionixClient = require('nutritionix');
 var nutritionix = new NutritionixClient({
-  appId: '1e6399d7',
-  appKey: '4088d6a1aca0376052356e4872c24b68'
+  appId: 'a120429b',
+  appKey: '3e1551bafdb518dba63b0555ac4f1482'
 
 });
 var calculateValues = function() {
-    Recipe.find({}, function(err, recipes) {
+    Recipe.find({
+      calculated: false
+    }, function(err, recipes) {
       if (recipes) {
         // console.log("1 " + recipes);
         recipes.forEach(function(recipe) {
@@ -33,17 +35,19 @@ var calculateValues = function() {
             ingredientsArray.forEach(function(ingredient) {
               // console.log(ingredient.protein.value);
               if (ingredient.protein.value && ingredient.carbohydrates.value && ingredient.fat.value) {
-
+                console.log('values: ' + ingredient.protein.value);
+                console.log('values: ' + ingredient.carbohydrates.value);
                 proteinVal += ingredient.protein.value;
                 carbVal += ingredient.carbohydrates.value;
                 fatVal += ingredient.fat.value;
+                console.log('cals: ' + proteinVal);
+                console.log('cals: ' + carbVal);
+                console.log('cals: ' + fatVal);
               }
 
               // console.log(fatVal);
             });
-            // console.log('cals: ' + proteinVal);
-            // console.log('cals: ' + carbVal);
-            // console.log('cals: ' + fatVal);
+
             var totalCal = (4 * proteinVal) + (4 * carbVal) + (9 * fatVal);
 
             var totalProtPerc = (((proteinVal * 4) / totalCal)) * 100;
@@ -262,7 +266,8 @@ function getIngredientNutrients(joinedIng, sourceUrl, finalCallback) {
   // console.log("this is now inside get ingredients function %j", joinedIng)
   // for each ingredient in an array
   // var getNutrientsPromiseArray = [];
-
+  // appId: 'a120429b',
+  //   appKey: '3e1551bafdb518dba63b0555ac4f1482'
 
   joinedIng.forEach(function(ing) {
     var ingBody = ing;
@@ -273,8 +278,8 @@ function getIngredientNutrients(joinedIng, sourceUrl, finalCallback) {
       method: 'POST',
       headers: {
         'Content-Type': 'text/plain',
-        'X-APP-ID': '1e6399d7',
-        'X-APP-KEY': '4088d6a1aca0376052356e4872c24b68'
+        'X-APP-ID': 'a120429b',
+        'X-APP-KEY': '3e1551bafdb518dba63b0555ac4f1482'
       },
       uri: {
         protocol: 'https:',
@@ -308,7 +313,7 @@ function getIngredientNutrients(joinedIng, sourceUrl, finalCallback) {
         if (response.statusCode === 400) {
           console.log("Bad request code " + response.statusCode);
           var badReqIngredient = ingBody;
-          badReqIngredient = badReqIngredient.replace(/boneless|skinless|shredded|peeled|sliced|pounded|diced|pitted|melted|powdered|flavoured|flavoring|cleaned|keep|refrigerated|chilled|cold|whole|new|and|grated|room|temperature,/ig, function replacer(match) {
+          badReqIngredient = badReqIngredient.replace(/boneless|skinless|shredded|peeled|sliced|pounded|diced|pitted|melted|powdered|flavoured|flavoring|cleaned|keep|refrigerated|chilled|cold|whole|new|and|grated|room|temperature|thawed|frozen|coarsely|chopped|,/ig, function replacer(match) {
 
             return "";
           });
@@ -331,8 +336,8 @@ function getIngredientNutrients(joinedIng, sourceUrl, finalCallback) {
             method: 'POST',
             headers: {
               'Content-Type': 'text/plain',
-              'X-APP-ID': '1e6399d7',
-              'X-APP-KEY': '4088d6a1aca0376052356e4872c24b68'
+              'X-APP-ID': 'a120429b',
+              'X-APP-KEY': '3e1551bafdb518dba63b0555ac4f1482'
             },
             uri: {
               protocol: 'https:',
@@ -448,7 +453,7 @@ function processRemoteRecipe(error, response, body) {
         resolve(r);
       });
     })).then(function() {
-      calculateValues()
+      calculateValues();
     }).catch(function(err) {
       // handle rejection
     });
@@ -497,7 +502,7 @@ function handleListRecipes(error, response, body) {
     //make a request to get each recipe detail
     // recipes.forEach(getRemoteRecipe);
     //for trial calling remoterecipes only for one recipe
-    getRemoteRecipe(recipes[4]);
+    getRemoteRecipe(recipes[13]);
     console.log("handleListRecipes:")
   }
 };

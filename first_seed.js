@@ -367,7 +367,7 @@ function handleListRecipes(error, response, body) {
     //make a request to get each recipe detail
     // recipes.forEach(getRemoteRecipe);
     //for trial calling remoterecipes only for one recipe
-    getRemoteRecipe(recipes[2]);
+    getRemoteRecipe(recipes[8]);
   }
 };
 
