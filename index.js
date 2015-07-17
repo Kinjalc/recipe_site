@@ -44,12 +44,48 @@ app.get('/recipes/:recipeId', function(req, res) {
   })
 });
 
-app.get('/:nutritionPick', function(req, res) {
+app.get('/recipes/nutrition/:nutritionPick', function(req, res) {
   var nutritionPick = req.params.nutritionPick;
   if (nutritionPick === "highFat") {
     Recipe.find({
       percentFat: {
-        $gte: 34
+        $gte: 50
+      }
+    }, function(err, recipes) {
+      if (err) {
+        res.send(err);
+      } else {
+        res.json(recipes);
+      }
+    })
+  } else if (nutritionPick === "highProtein") {
+    Recipe.find({
+      percentProtein: {
+        $gte: 30
+      }
+    }, function(err, recipes) {
+      if (err) {
+        res.send(err);
+      } else {
+        res.json(recipes);
+      }
+    })
+  } else if (nutritionPick === "highCarbohydrates") {
+    Recipe.find({
+      percentCarbohydrates: {
+        $gte: 50
+      }
+    }, function(err, recipes) {
+      if (err) {
+        res.send(err);
+      } else {
+        res.json(recipes);
+      }
+    })
+  } else if (nutritionPick === "lowFat") {
+    Recipe.find({
+      percentFat: {
+        $lte: 33
       }
     }, function(err, recipes) {
       if (err) {
