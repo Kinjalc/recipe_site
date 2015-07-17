@@ -313,7 +313,7 @@ function getIngredientNutrients(joinedIng, sourceUrl, finalCallback) {
         if (response.statusCode === 400) {
           console.log("Bad request code " + response.statusCode);
           var badReqIngredient = ingBody;
-          badReqIngredient = badReqIngredient.replace(/boneless|skinless|shredded|peeled|sliced|pounded|diced|pitted|melted|powdered|flavoured|flavoring|cleaned|keep|refrigerated|chilled|cold|whole|new|and|grated|room|temperature|thawed|frozen|coarsely|chopped|,/ig, function replacer(match) {
+          badReqIngredient = badReqIngredient.replace(/boneless|skinless|shredded|peeled|sliced|pounded|diced|pitted|melted|powdered|flavoured|flavoring|cleaned|keep|refrigerated|chilled|cold|whole|new|and|grated|room|temperature|thawed|frozen|coarsely|chopped|mashed|beaten|,/ig, function replacer(match) {
 
             return "";
           });
@@ -525,11 +525,11 @@ function listRecipes() {
 
 
 
-app.get('/me', function(req, res) {
-  //invokes listRecipes
-  listRecipes();
-  // calculateValues();
-});
+
+//invokes listRecipes
+listRecipes();
+// calculateValues();
+
 
 
 var server = app.listen(3000, function() {
