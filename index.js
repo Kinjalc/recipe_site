@@ -6,7 +6,7 @@ var request = require('request');
 var Recipe = require('./models/recipe.js');
 var mongoose = require('mongoose');
 var cors = require('cors');
-mongoose.connect('mongodb://localhost/allrecipes');
+mongoose.connect('mongodb://localhost/recipes');
 
 
 // var corsOptions = {

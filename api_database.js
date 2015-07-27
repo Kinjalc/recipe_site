@@ -7,7 +7,7 @@ var request = require('request');
 // require("request-debug")(request);
 var Recipe = require('./models/recipe.js');
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/allrecipes');
+mongoose.connect('mongodb://localhost/recipes');
 
 app.use(bodyParser.json());
 app.use(jsonParser);
