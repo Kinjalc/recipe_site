@@ -1,6 +1,9 @@
 # recipe_site
 Author: Kinjal Chauhan
+
 App: Recipe app with MEAN stack - node backend, angular frontend
+
+
 User story: app that lets user filter recipes based on nutritional content
 i.e high protein content,low protein content low carbohydrates, etc
 

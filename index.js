@@ -6,8 +6,18 @@ var request = require('request');
 var Recipe = require('./models/recipe.js');
 var mongoose = require('mongoose');
 var cors = require('cors');
-mongoose.connect('mongodb://localhost/recipes');
 
+
+
+//mongoose.connect('mongodb://recipe:nutrilicious@ds033699.mongolab.com:33699/recipe_site');
+var MongoURI = process.env.MONGO_URI || 'mongodb://localhost/recipes';
+mongoose.connect(MongoURI, function(err, res) {
+  if (err) {
+    console.log('ERROR connecting to: ' + MongoURI + '. ' + err);
+  } else {
+    console.log('MongoDB connected successfully to ' + MongoURI);
+  }
+});
 
 // var corsOptions = {
 //   methods: ['GET', 'PUT', 'POST'],
@@ -114,6 +124,8 @@ app.get('/recipes/nutrition/:nutritionPick', function(req, res) {
 
 var server = app.listen(3000, function() {
   var host = server.address().address;
-  var port = server.address().port;
+  var port = normalizePort(process.env.PORT || '3000')
+
+
   console.log('Example app listening at http://%s:%s', host, port);
 });

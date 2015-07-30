@@ -7,7 +7,16 @@ var request = require('request');
 // require("request-debug")(request);
 var Recipe = require('./models/recipe.js');
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/recipes');
+
+
+var MongoURI = process.env.MONGO_URI || 'mongodb://localhost/recipes';
+mongoose.connect(MongoURI, function(err, res) {
+  if (err) {
+    console.log('ERROR connecting to: ' + MongoURI + '. ' + err);
+  } else {
+    console.log('MongoDB connected successfully to ' + MongoURI);
+  }
+});
 
 app.use(bodyParser.json());
 app.use(jsonParser);
@@ -314,7 +323,7 @@ function getIngredientNutrients(joinedIng, sourceUrl, finalCallback) {
         if (response.statusCode === 400) {
           console.log("Bad request code " + response.statusCode);
           var badReqIngredient = ingBody;
-          badReqIngredient = badReqIngredient.replace(/boneless|skinless|shredded|peeled|sliced|pounded|diced|pitted|melted|powdered|flavoured|flavoring|cleaned|keep|refrigerated|chilled|cold|whole|new|and|grated|room|temperature|thawed|frozen|coarsely|chopped|confectioners'|white|softnened|mashed|beaten|canned|drained|lightly|uncooked|,/ig, function replacer(match) {
+          badReqIngredient = badReqIngredient.replace(/boneless|skinless|shredded|peeled|sliced|pounded|diced|pitted|melted|powdered|flavoured|flavoring|cleaned|keep|refrigerated|chilled|cold|whole|new|and|grated|room|temperature|thawed|frozen|coarsely|chopped|confectioners'|white|softened|mashed|beaten|canned|drained|lightly|uncooked|peeled|mashed|,/ig, function replacer(match) {
 
             return "";
           });
@@ -493,7 +502,7 @@ function handleListRecipes(error, response, body) {
 function listRecipes() {
 
   request_params = {
-    url: 'http://food2fork.com/api/search?key=ef82898c8dec1bd923cf8abcec885398&page=3',
+    url: 'http://food2fork.com/api/search?key=ef82898c8dec1bd923cf8abcec885398&page=1',
 
     method: 'GET'
 
