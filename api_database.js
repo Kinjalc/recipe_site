@@ -23,289 +23,16 @@ app.use(jsonParser);
 
 var NutritionixClient = require('nutritionix');
 var nutritionix = new NutritionixClient({
-  appId: 'a120429b', //'1e6399d7',
-  appKey: '3e1551bafdb518dba63b0555ac4f1482' //'4088d6a1aca0376052356e4872c24b68'
+  appId: '1e6399d7', //'a120429b',
+  appKey: '4088d6a1aca0376052356e4872c24b68' //'3e1551bafdb518dba63b0555ac4f1482'
 
 });
 var calculateValues = function() {
-  // recipes = [{
-  //   "_id": "55bb96c8b608931f120783b3",
-  //   "title": "Banana Banana Bread",
-  //   "source_url": "http://allrecipes.com/Recipe/Banana-Banana-Bread/Detail.aspx",
-  //   "image_url": "http://static.food2fork.com/254186ea50.jpg",
-  //   "recipe_id": "2734",
-  //   "__v": 0,
-  //   "calculated": false,
-  //   "servingSize": "4",
-  //   "ingredients": [{
-  //     "name": "1 teaspoon baking soda",
-  //     "_id": "55bb96c9b608931f120783c8",
-  //     "vitaminB12": {
-  //       "value": 0,
-  //       "unit": "µg"
-  //     },
-  //     "vitaminB6": {
-  //       "value": 0,
-  //       "unit": "mg"
-  //     },
-  //     "vitaminA": {
-  //       "value": 0,
-  //       "unit": "µg"
-  //     },
-  //     "vitaminC": {
-  //       "value": 0,
-  //       "unit": "mg"
-  //     },
-  //     "saturatedFat": {
-  //       "value": 0,
-  //       "unit": "g"
-  //     },
-  //     "polyUnsaturatedFat": {
-  //       "value": 0,
-  //       "unit": "g"
-  //     },
-  //     "monoUnsaturatedFat": {
-  //       "value": 0,
-  //       "unit": "g"
-  //     },
-  //     "fat": {
-  //       "value": 0
-  //     },
-  //     "carbohydrates": {
-  //       "value": 0,
-  //       "unit": "g"
-  //     },
-  //     "protein": {
-  //       "value": 0,
-  //       "unit": "g"
-  //     },
-  //     "id": "55bb96c9b608931f120783c8"
-  //   }, {
-  //     "name": "1/4 teaspoon salt",
-  //     "_id": "55bb96c9b608931f120783ca",
-  //     "vitaminB12": {
-  //       "value": 0,
-  //       "unit": "µg"
-  //     },
-  //     "vitaminB6": {
-  //       "value": 0,
-  //       "unit": "mg"
-  //     },
-  //     "vitaminA": {
-  //       "value": 0,
-  //       "unit": "µg"
-  //     },
-  //     "vitaminC": {
-  //       "value": 0,
-  //       "unit": "mg"
-  //     },
-  //     "saturatedFat": {
-  //       "value": 0,
-  //       "unit": "g"
-  //     },
-  //     "polyUnsaturatedFat": {
-  //       "value": 0,
-  //       "unit": "g"
-  //     },
-  //     "monoUnsaturatedFat": {
-  //       "value": 0,
-  //       "unit": "g"
-  //     },
-  //     "fat": {
-  //       "value": 0
-  //     },
-  //     "carbohydrates": {
-  //       "value": 0,
-  //       "unit": "g"
-  //     },
-  //     "protein": {
-  //       "value": 0,
-  //       "unit": "g"
-  //     },
-  //     "id": "55bb96c9b608931f120783ca"
-  //   }, {
-  //     "name": "2 cups all-purpose flour",
-  //     "_id": "55bb96c9b608931f120783d2",
-  //     "vitaminB12": {
-  //       "value": 0,
-  //       "unit": "µg"
-  //     },
-  //     "vitaminB6": {
-  //       "value": 0.10999999999999999,
-  //       "unit": "mg"
-  //     },
-  //     "vitaminA": {
-  //       "value": 0,
-  //       "unit": "µg"
-  //     },
-  //     "vitaminC": {
-  //       "value": 0,
-  //       "unit": "mg"
-  //     },
-  //     "saturatedFat": {
-  //       "value": 0.3875,
-  //       "unit": "g"
-  //     },
-  //     "polyUnsaturatedFat": {
-  //       "value": 1.0325,
-  //       "unit": "g"
-  //     },
-  //     "monoUnsaturatedFat": {
-  //       "value": 0.21749999999999997,
-  //       "unit": "g"
-  //     },
-  //     "fat": {
-  //       "value": 2.45
-  //     },
-  //     "carbohydrates": {
-  //       "value": 190.775,
-  //       "unit": "g"
-  //     },
-  //     "protein": {
-  //       "value": 25.825,
-  //       "unit": "g"
-  //     },
-  //     "id": "55bb96c9b608931f120783d2"
-  //   }, {
-  //     "name": "1/2 cup butter",
-  //     "_id": "55bb96cab608931f120783d8",
-  //     "vitaminB12": {
-  //       "value": 0.19295,
-  //       "unit": "µg"
-  //     },
-  //     "vitaminB6": {
-  //       "value": 0.003405,
-  //       "unit": "mg"
-  //     },
-  //     "vitaminA": {
-  //       "value": 776.34,
-  //       "unit": "µg"
-  //     },
-  //     "vitaminC": {
-  //       "value": 0,
-  //       "unit": "mg"
-  //     },
-  //     "saturatedFat": {
-  //       "value": 58.30268000000001,
-  //       "unit": "g"
-  //     },
-  //     "polyUnsaturatedFat": {
-  //       "value": 3.453805,
-  //       "unit": "g"
-  //     },
-  //     "monoUnsaturatedFat": {
-  //       "value": 23.858835,
-  //       "unit": "g"
-  //     },
-  //     "fat": {
-  //       "value": 92.05985000000001
-  //     },
-  //     "carbohydrates": {
-  //       "value": 0.0681,
-  //       "unit": "g"
-  //     },
-  //     "protein": {
-  //       "value": 0.96475,
-  //       "unit": "g"
-  //     },
-  //     "id": "55bb96cab608931f120783d8"
-  //   }, {
-  //     "name": "2 1/3 cups mashed overripe bananas",
-  //     "_id": "55bb96cab608931f120783dc",
-  //     "id": "55bb96cab608931f120783dc"
-  //   }, {
-  //     "name": "2 eggs, beaten",
-  //     "_id": "55bb96cab608931f120783dd",
-  //     "vitaminB12": {
-  //       "value": 0.89,
-  //       "unit": "µg"
-  //     },
-  //     "vitaminB6": {
-  //       "value": 0.17,
-  //       "unit": "mg"
-  //     },
-  //     "vitaminA": {
-  //       "value": 160,
-  //       "unit": "µg"
-  //     },
-  //     "vitaminC": {
-  //       "value": 0,
-  //       "unit": "mg"
-  //     },
-  //     "saturatedFat": {
-  //       "value": 3.126,
-  //       "unit": "g"
-  //     },
-  //     "polyUnsaturatedFat": {
-  //       "value": 1.911,
-  //       "unit": "g"
-  //     },
-  //     "monoUnsaturatedFat": {
-  //       "value": 3.658,
-  //       "unit": "g"
-  //     },
-  //     "fat": {
-  //       "value": 9.51
-  //     },
-  //     "carbohydrates": {
-  //       "value": 0.72,
-  //       "unit": "g"
-  //     },
-  //     "protein": {
-  //       "value": 12.56,
-  //       "unit": "g"
-  //     },
-  //     "id": "55bb96cab608931f120783dd"
-  //   }, {
-  //     "name": "3/4 cup brown sugar",
-  //     "_id": "55bb96cab608931f120783df",
-  //     "vitaminB12": {
-  //       "value": 0,
-  //       "unit": "µg"
-  //     },
-  //     "vitaminB6": {
-  //       "value": 0.067896,
-  //       "unit": "mg"
-  //     },
-  //     "vitaminA": {
-  //       "value": 0,
-  //       "unit": "µg"
-  //     },
-  //     "vitaminC": {
-  //       "value": 0,
-  //       "unit": "mg"
-  //     },
-  //     "saturatedFat": {
-  //       "value": 0,
-  //       "unit": "g"
-  //     },
-  //     "polyUnsaturatedFat": {
-  //       "value": 0,
-  //       "unit": "g"
-  //     },
-  //     "monoUnsaturatedFat": {
-  //       "value": 0,
-  //       "unit": "g"
-  //     },
-  //     "fat": {
-  //       "value": 0
-  //     },
-  //     "carbohydrates": {
-  //       "value": 162.43703999999997,
-  //       "unit": "g"
-  //     },
-  //     "protein": {
-  //       "value": 0.19871999999999998,
-  //       "unit": "g"
-  //     },
-  //     "id": "55bb96cab608931f120783df"
-  //   }],
-  //   "id": "55bb96c8b608931f120783b3"
-  // }]
+
   Recipe.find({
-    _id: "55bb96c8b608931f120783b2",
+    //_id: "55bb96c8b608931f120783ac",
     // source_url: source_Url
-    //calculated: false
+    calculated: false
   }, function(err, recipes) {
     if (recipes) {
       // console.log("1 " + recipes);
@@ -591,8 +318,8 @@ function getIngredientNutrients(joinedIng, sourceUrl, finalCallback) {
       method: 'POST',
       headers: {
         'Content-Type': 'text/plain',
-        'X-APP-ID': 'a120429b', //'1e6399d7',
-        'X-APP-KEY': '3e1551bafdb518dba63b0555ac4f1482' //'4088d6a1aca0376052356e4872c24b68'
+        'X-APP-ID': '1e6399d7', //'a120429b',
+        'X-APP-KEY': '4088d6a1aca0376052356e4872c24b68' //'3e1551bafdb518dba63b0555ac4f1482'
       },
       uri: {
         protocol: 'https:',
@@ -626,7 +353,7 @@ function getIngredientNutrients(joinedIng, sourceUrl, finalCallback) {
         if (response.statusCode === 400) {
           console.log("Bad request code " + response.statusCode);
           var badReqIngredient = ingBody;
-          badReqIngredient = badReqIngredient.replace(/boneless|skinless|shredded|peeled|sliced|pounded|diced|pitted|melted|powdered|flavoured|flavoring|cleaned|keep|refrigerated|chilled|cold|whole|new|and|grated|room|temperature|thawed|frozen|coarsely|chopped|confectioners'|white|softened|mashed|beaten|canned|drained|lightly|uncooked|peeled|ripe|mashed|,/ig, function replacer(match) {
+          badReqIngredient = badReqIngredient.replace(/boneless|skinless|halves|cooked|uncooked|shredded|peeled|sliced|pounded|diced|pitted|melted|powdered|flavoured|flavoring|cleaned|keep|refrigerated|chilled|cold|whole|new|and|grated|room|temperature|thawed|frozen|coarsely|chopped|confectioners'|white|softened|mashed|beaten|canned|drained|lightly|uncooked|peeled|ripe|mashed|cut|into|2|inch|piece|white|divided|prepared|ground|cubed|warmed|drained|fresh|beaten|pieces|prepared|minced|to|taste|boiling|and|or|fillet|fillets|s|,/ig, function replacer(match) {
 
             return "";
           });
@@ -648,8 +375,9 @@ function getIngredientNutrients(joinedIng, sourceUrl, finalCallback) {
             method: 'POST',
             headers: {
               'Content-Type': 'text/plain',
-              'X-APP-ID': 'a120429b', //'1e6399d7',
-              'X-APP-KEY': '3e1551bafdb518dba63b0555ac4f1482'
+              'X-APP-ID': '1e6399d7', //'a120429b',
+              'X-APP-KEY': '4088d6a1aca0376052356e4872c24b68' //'3e1551bafdb518dba63b0555ac4f1482'
+
             },
             uri: {
               protocol: 'https:',
@@ -804,7 +532,7 @@ function handleListRecipes(error, response, body) {
 function listRecipes() {
 
   request_params = {
-    url: 'http://food2fork.com/api/search?key=ef82898c8dec1bd923cf8abcec885398&page=1',
+    url: 'http://food2fork.com/api/search?key=ef82898c8dec1bd923cf8abcec885398&page=5',
 
     method: 'GET'
 
@@ -818,8 +546,8 @@ function listRecipes() {
 
 
 //invokes listRecipes
-// listRecipes();
-calculateValues();
+listRecipes();
+// calculateValues();
 
 
 
